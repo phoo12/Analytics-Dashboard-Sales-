@@ -42,7 +42,8 @@ app.add_middleware(
 )
 
 # include API routes
-app.include_router(router, prefix="/api")
+app.include_router(router, prefix="/api", tags=["analytics"])
+app.include_router(auth_router, prefix="/api/auth", tags=["auth"])  # ← ADD THIS LINE
 
 #  root endpoint
 

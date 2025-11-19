@@ -1,18 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DollarSign, ShoppingCart, Users, TrendingUp, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { DollarSign, ShoppingCart, Users, TrendingUp, RefreshCw, LogOut } from 'lucide-react';
 import StatsCard from '@/components/dashboard/StatsCard';
 import SalesChart from '@/components/dashboard/SalesChart';
 import CategoryChart from '@/components/dashboard/CategoryChart';
 import RecentSales from '@/components/dashboard/RecentSales';
 import { fetchAnalytics, refreshData } from '@/lib/api';
+import { isAuthenticated, logout } from '@/lib/auth';
 
 export default function Home() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const router = useRouter();
+
+  // Check authentication on mount
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push('/login');
+      return;
+    }
+    loadData();
+  }, [router]);
 
   // Fetch analytics data
   const loadData = async () => {
@@ -22,7 +34,12 @@ export default function Home() {
       const analyticsData = await fetchAnalytics();
       setData(analyticsData);
     } catch (err) {
-      setError('Failed to load analytics data. Please make sure the backend is running.');
+      // Check if it's an authentication error
+      if (err.message.includes('token') || err.message.includes('Session expired')) {
+        router.push('/login');
+      } else {
+        setError('Failed to load analytics data. Please make sure the backend is running.');
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -36,17 +53,22 @@ export default function Home() {
       await refreshData();
       await loadData();
     } catch (err) {
-      setError('Failed to refresh data.');
+      if (err.message.includes('token') || err.message.includes('Session expired')) {
+        router.push('/login');
+      } else {
+        setError('Failed to refresh data.');
+      }
       console.error(err);
     } finally {
       setRefreshing(false);
     }
   };
 
-  // Load data on mount
-  useEffect(() => {
-    loadData();
-  }, []);
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   // Format currency
   const formatCurrency = (value) => {
@@ -73,12 +95,20 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={loadData}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Try Again
-          </button>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={loadData}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -96,14 +126,23 @@ export default function Home() {
                 Real-time insights and performance metrics
               </p>
             </div>
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh Data'}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                {refreshing ? 'Refreshing...' : 'Refresh Data'}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </div>
