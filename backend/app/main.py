@@ -6,6 +6,8 @@ import os
 from app.api.routes import router
 from app.api.auth_routes import router as auth_router
 from app.database.database import engine, Base
+from app.database.analytics_models import User
+from app.database.analytics_models import Product, Customer, Order, OrderItem
 
 
 # load env varibles

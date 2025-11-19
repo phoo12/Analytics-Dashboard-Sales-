@@ -3,7 +3,7 @@ from app.models.schemas import AnalyticsResponse, DashboardStats, ChartData
 from app.services.data_service import data_service
 from app.services.data_service import data_service
 from app.auth.auth import get_current_active_user
-from app.database.models import User
+from app.database.analytics_models import User
 
 router = APIRouter()
 

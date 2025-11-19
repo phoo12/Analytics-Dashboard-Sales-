@@ -1,14 +1,8 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-// Backend endpoints
-const ENDPOINTS = {
-  REGISTER: '/api/auth/register',
-  LOGIN: '/api/auth/login',
-};
-
 export async function register(userData) {
   try {
-    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.REGISTER}`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -18,7 +12,7 @@ export async function register(userData) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Registration failed');
+      throw new Error(error.detail || 'Registration failed');
     }
 
     return await response.json();
@@ -34,7 +28,7 @@ export async function login(username, password) {
     formData.append('username', username);
     formData.append('password', password);
 
-    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.LOGIN}`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -44,7 +38,7 @@ export async function login(username, password) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Login failed');
+      throw new Error(error.detail || 'Login failed');
     }
 
     const data = await response.json();
