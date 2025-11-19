@@ -183,7 +183,8 @@ export default function Home() {
         </div>
 
         {/* Recent Sales Table */}
-        <RecentSales data={data?.recent_sales} />
+        <RecentSales data={data?.recent_orders} />
+      
       </div>
     </main>
   );

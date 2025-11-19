@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000';
 
 // Helper function to get auth token
 function getToken() {
@@ -39,7 +39,7 @@ async function fetchWithAuth(url, options = {}) {
 
 export async function fetchAnalytics() {
   try {
-    const response = await fetchWithAuth(`${API_BASE_URL}/api/analytics`);
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/analytics/dashboard`);
     if (!response.ok) {
       throw new Error('Failed to fetch analytics data');
     }
@@ -52,7 +52,7 @@ export async function fetchAnalytics() {
 
 export async function fetchStats() {
   try {
-    const response = await fetchWithAuth(`${API_BASE_URL}/api/stats`);
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/analytics/stats`);
     if (!response.ok) {
       throw new Error('Failed to fetch stats');
     }
@@ -64,16 +64,20 @@ export async function fetchStats() {
 }
 
 export async function refreshData() {
-  try {
-    const response = await fetchWithAuth(`${API_BASE_URL}/api/refresh-data`, {
+    const token = localStorage.getItem('token');
+  
+    const res = await fetch(`${API_BASE_URL}/api/refresh-data`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
     });
-    if (!response.ok) {
+  
+    if (!res.ok) {
       throw new Error('Failed to refresh data');
     }
-    return await response.json();
-  } catch (error) {
-    console.error('Error refreshing data:', error);
-    throw error;
+  
+    return res.json();
   }
-}
+  

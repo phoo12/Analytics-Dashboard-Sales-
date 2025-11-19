@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from .database import Base
+from app.database.database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -19,6 +19,7 @@ class User(Base):
     # Relationships
     orders = relationship("Order", back_populates="user")
 
+
 class Customer(Base):
     __tablename__ = "customers"
     
@@ -35,6 +36,7 @@ class Customer(Base):
     # Relationships
     orders = relationship("Order", back_populates="customer")
 
+
 class Product(Base):
     __tablename__ = "products"
     
@@ -49,6 +51,7 @@ class Product(Base):
     
     # Relationships
     order_items = relationship("OrderItem", back_populates="product")
+
 
 class Order(Base):
     __tablename__ = "orders"
@@ -68,6 +71,7 @@ class Order(Base):
     customer = relationship("Customer", back_populates="orders")
     user = relationship("User", back_populates="orders")
     order_items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+
 
 class OrderItem(Base):
     __tablename__ = "order_items"
