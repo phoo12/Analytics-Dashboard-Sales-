@@ -7,24 +7,20 @@ import StatsCard from '@/components/dashboard/StatsCard';
 import SalesChart from '@/components/dashboard/SalesChart';
 import CategoryChart from '@/components/dashboard/CategoryChart';
 import RecentSales from '@/components/dashboard/RecentSales';
+import EditOrderModal from '@/components/dashboard/EditOrderModal';
+import DeleteOrderModal from '@/components/dashboard/DeleteOrderModal';
 import { fetchAnalytics, refreshData } from '@/lib/api';
-import { isAuthenticated, logout } from '@/lib/auth';
+import { logout, isAuthenticated } from '@/lib/auth';
 
 export default function Home() {
+  const router = useRouter();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const router = useRouter();
-
-  // Check authentication on mount
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    loadData();
-  }, [router]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Fetch analytics data
   const loadData = async () => {
@@ -34,8 +30,8 @@ export default function Home() {
       const analyticsData = await fetchAnalytics();
       setData(analyticsData);
     } catch (err) {
-      // Check if it's an authentication error
-      if (err.message.includes('token') || err.message.includes('Session expired')) {
+      if (err.message.includes('Session expired') || err.message.includes('No authentication token')) {
+        logout();
         router.push('/login');
       } else {
         setError('Failed to load analytics data. Please make sure the backend is running.');
@@ -53,11 +49,7 @@ export default function Home() {
       await refreshData();
       await loadData();
     } catch (err) {
-      if (err.message.includes('token') || err.message.includes('Session expired')) {
-        router.push('/login');
-      } else {
-        setError('Failed to refresh data.');
-      }
+      setError('Failed to refresh data.');
       console.error(err);
     } finally {
       setRefreshing(false);
@@ -69,6 +61,75 @@ export default function Home() {
     logout();
     router.push('/login');
   };
+
+  // Handle edit order
+  const handleEditOrder = (order) => {
+    setSelectedOrder(order);
+    setIsEditModalOpen(true);
+  };
+
+  // Handle delete order
+  const handleDeleteOrder = (order) => {
+    setSelectedOrder(order);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Save edited order
+  const handleSaveOrder = async (orderId, formData) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`http://localhost:8000/api/orders/${orderId}/status?status=${formData.status}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setIsEditModalOpen(false);
+        setSelectedOrder(null);
+        await loadData(); // Reload data
+      } else {
+        alert('Failed to update order');
+      }
+    } catch (err) {
+      console.error('Error updating order:', err);
+      alert('Failed to update order');
+    }
+  };
+
+  // Confirm delete order
+  const handleConfirmDelete = async (orderId) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`http://localhost:8000/api/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setIsDeleteModalOpen(false);
+        setSelectedOrder(null);
+        await loadData(); // Reload data
+      } else {
+        alert('Failed to delete order');
+      }
+    } catch (err) {
+      console.error('Error deleting order:', err);
+      alert('Failed to delete order');
+    }
+  };
+
+  // Check authentication and load data on mount
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push('/login');
+      return;
+    }
+    loadData();
+  }, []);
 
   // Format currency
   const formatCurrency = (value) => {
@@ -95,20 +156,12 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={loadData}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Try Again
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
+          <button
+            onClick={loadData}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -183,9 +236,33 @@ export default function Home() {
         </div>
 
         {/* Recent Sales Table */}
-        <RecentSales data={data?.recent_orders} />
-      
+        <RecentSales 
+          data={data?.recent_orders} 
+          onEdit={handleEditOrder}
+          onDelete={handleDeleteOrder}
+        />
       </div>
+
+      {/* Modals */}
+      <EditOrderModal
+        order={selectedOrder}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        onSave={handleSaveOrder}
+      />
+
+      <DeleteOrderModal
+        order={selectedOrder}
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        onConfirm={handleConfirmDelete}
+      />
     </main>
   );
 }

@@ -47,14 +47,15 @@ export default function CategoryChart({ data }) {
           />
           <Tooltip 
             formatter={(value) => formatCurrency(value)}
+            cursor={{fill: 'none'}}
             contentStyle={{ 
               backgroundColor: 'white', 
-              border: '1px solid #e5e7eb',
+              border: '1px solid #ffffff',
               borderRadius: '6px'
             }}
           />
           <Legend />
-          <Bar dataKey="sales" name="Sales" radius={[8, 8, 0, 0]}>
+          <Bar dataKey="sales" name="Sales" radius={[8, 8, 0, 0]} >
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
