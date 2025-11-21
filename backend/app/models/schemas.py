@@ -105,7 +105,7 @@ class OrderResponse(OrderBase):
     order_number: str
     total_amount: float
     created_at: datetime
-    updated_at: Optional[str] = None
+    updated_at: Optional[datetime] = None
     customer: CustomerResponse
     order_items: List[OrderItemResponse]
     

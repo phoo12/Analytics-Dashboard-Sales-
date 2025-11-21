@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -12,8 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Analytics Dashboard",
-  description: "Manage Successful Business",
+
+  title:{
+    template: "%s / Analytics Dashboard",
+  default: "Welcome / Manage Successful Business",
+},
+description: 
+"Order you favourite products at our reliable site.Make you day Perfect & Save you Time!",
+
 };
 
 export default function RootLayout({ children }) {
@@ -22,7 +29,8 @@ export default function RootLayout({ children }) {
       <body
         className="bg-gray-50"
       >
-        <div className="min-h-scree">
+       
+        <div className="min-h-screen">
 
         {children}
         </div>

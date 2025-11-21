@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
@@ -25,8 +25,8 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:3003",
-    "http://127.0.0.1:3003",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
 ]
 
 app.add_middleware(

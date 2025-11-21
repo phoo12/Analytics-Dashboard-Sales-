@@ -45,11 +45,11 @@ def seed_sample_data():
         # Add sample customers (without city field)
         print("Adding customers...")
         customers = [
-            Customer(name="John Smith", email="john.smith@email.com", phone="123-456-7890", address="123 Main St"),
-            Customer(name="Sarah Johnson", email="sarah.j@email.com", phone="123-456-7891", address="456 Oak Ave"),
-            Customer(name="Mike Brown", email="mike.brown@email.com", phone="123-456-7892", address="789 Pine Rd"),
-            Customer(name="Emily Davis", email="emily.d@email.com", phone="123-456-7893", address="321 Elm St"),
-            Customer(name="James Wilson", email="james.w@email.com", phone="123-456-7894", address="654 Maple Dr"),
+            Customer(name="Aiko", email="Aiko@email.com", phone="123-456-7890", address="123 Main St"),
+            Customer(name="Puku", email="Puku@email.com", phone="123-456-7891", address="456 Oak Ave"),
+            Customer(name="Wai", email="Wai@email.com", phone="123-456-7892", address="789 Pine Rd"),
+            Customer(name="Kitty", email="Kitty.d@email.com", phone="123-456-7893", address="321 Elm St"),
+            Customer(name="Cat", email="Cat@email.com", phone="123-456-7894", address="654 Maple Dr"),
         ]
         
         for customer in customers:

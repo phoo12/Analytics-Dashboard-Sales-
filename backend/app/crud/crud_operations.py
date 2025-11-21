@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import random
+from sqlalchemy.orm import joinedload
 
 from ..models.schemas import ProductCreate, CustomerCreate, OrderCreate
 from ..database.analytics_models import Product, Customer, Order, OrderItem
@@ -74,7 +75,7 @@ def get_order(db: Session, order_id: int):
     return db.query(Order).filter(Order.id == order_id).first()
 
 def get_order_by_id(db: Session, order_id: int):
-    from sqlalchemy.orm import joinedload
+    
     
     order = db.query(Order).options(
         joinedload(Order.customer),
